@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -15,58 +16,51 @@ public class LectureServlet extends HttpServlet {
 
     private static final List<Lecture> STORAGE = new ArrayList<>();
     static {
-        STORAGE.add(new Lecture(1L, "스프링 DIY", "Jude"));
-        STORAGE.add(new Lecture(2L, "리액트 입문", "Anna"));
+        STORAGE.add(new Lecture(1L, "스프링 DIY", 30000L));
+        STORAGE.add(new Lecture(2L, "리액트 입문", 25000L));
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(STORAGE);
+            throws ServletException, IOException {
 
         System.out.println(">>> doGet 호출됨! URL=" + req.getRequestURI());
 
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().write(json);
+        req.setAttribute("lectures", STORAGE);
+        req.getRequestDispatcher("/lecture-list.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-        throws IOException{
+            throws IOException {
 
         byte[] bodyBytes = req.getInputStream().readAllBytes();
         String body = new String(bodyBytes, StandardCharsets.UTF_8);
-        System.out.println(">>>>>> 받은 body : " + body); //화깅용
+        System.out.println(">>> POST 받은 body: " + body);
 
         ObjectMapper mapper = new ObjectMapper();
         Lecture lecture = mapper.readValue(body, Lecture.class);
 
         long nextId = STORAGE.size() + 1;
-        lecture.id = nextId;
+        lecture.setId(nextId);
         STORAGE.add(lecture);
-        resp.setStatus(201);
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().write(mapper.writeValueAsString(lecture));  // 새로 생성된 것 반환
 
+        resp.sendRedirect("/lectures");
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp)
-        throws IOException{
+            throws IOException {
 
         byte[] bodyBytes = req.getInputStream().readAllBytes();
         String body = new String(bodyBytes, StandardCharsets.UTF_8);
-        System.out.println(">>>>>> 받은 body : " + body); //확인용
+        System.out.println(">>> PUT 받은 body: " + body);
 
         ObjectMapper mapper = new ObjectMapper();
         Lecture updated = mapper.readValue(body, Lecture.class);
 
         Lecture target = STORAGE.stream()
-                .filter(l -> l.id.equals(updated.id))
+                .filter(l -> l.getId().equals(updated.getId()))
                 .findFirst()
                 .orElse(null);
 
@@ -74,22 +68,22 @@ public class LectureServlet extends HttpServlet {
             resp.setStatus(404);
             return;
         }
-        target.title = updated.title;
-        target.instructor = updated.instructor;
+
+        target.setName(updated.getName());
+        target.setPrice(updated.getPrice());
 
         resp.setStatus(200);
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         resp.getWriter().write(mapper.writeValueAsString(target));
-
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
-        throws IOException {
+            throws IOException {
 
         String idStr = req.getParameter("id");
-        System.out.println(">>>>>> DELETE 요청, id=" + idStr);
+        System.out.println(">>> DELETE 요청, id=" + idStr);
 
         if (idStr == null) {
             resp.setStatus(400);
@@ -97,7 +91,7 @@ public class LectureServlet extends HttpServlet {
         }
 
         Long id = Long.parseLong(idStr);
-        boolean removed = STORAGE.removeIf(l -> l.id.equals(id));
+        boolean removed = STORAGE.removeIf(l -> l.getId().equals(id));
 
         if (!removed) {
             resp.setStatus(404);
@@ -106,5 +100,4 @@ public class LectureServlet extends HttpServlet {
 
         resp.setStatus(204);
     }
-
 }

@@ -1,16 +1,40 @@
 package com.diy.app;
 
 public class Lecture {
-    public Long id;
-    public String title;
-    public String instructor;
+    private Long id;
+    private String name;
+    private Long price;
 
     public Lecture() {
     }
 
-    public Lecture(Long id, String title, String instructor) {
+    public Lecture(Long id, String name, Long price) {
         this.id = id;
-        this.title = title;
-        this.instructor = instructor;
+        this.name = name;
+        this.price = price;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
     }
 }
