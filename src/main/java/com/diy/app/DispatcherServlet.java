@@ -1,17 +1,24 @@
 package com.diy.app;
 
+import com.diy.app.lecture.controller.LectureCreateController;
+import com.diy.app.lecture.controller.LectureDeleteController;
+import com.diy.app.lecture.controller.LectureListController;
+import com.diy.app.lecture.controller.LectureUpdateController;
+import com.diy.framework.web.Controller;
+import com.diy.framework.web.HandlerMapping;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-//모든 요청을 받는 단일 서블릿
 @WebServlet("/")
 public class DispatcherServlet extends HttpServlet {
 
     private HandlerMapping handlerMapping;
 
-    //서블릿 시작 시 HandlerMapping에 컨트롤러 등록
     @Override
-    public void init(){
+    public void init() {
         handlerMapping = new HandlerMapping();
         handlerMapping.setMapping("GET", "/lectures", new LectureListController());
         handlerMapping.setMapping("POST", "/lectures", new LectureCreateController());
@@ -19,5 +26,17 @@ public class DispatcherServlet extends HttpServlet {
         handlerMapping.setMapping("DELETE", "/lectures", new LectureDeleteController());
     }
 
-    // TODO: service() - 요청에서 컨트롤러 찾아서 handleRequest() 호출 컨트롤러 없으면 404
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+        try {
+            Controller controller = handlerMapping.getController(req);
+            if (controller == null) {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            controller.handleRequest(req, resp);
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
 }

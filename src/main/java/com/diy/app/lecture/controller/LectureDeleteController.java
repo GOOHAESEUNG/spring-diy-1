@@ -1,5 +1,7 @@
-package com.diy.app;
+package com.diy.app.lecture.controller;
 
+import com.diy.app.lecture.LectureStorage;
+import com.diy.framework.web.Controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

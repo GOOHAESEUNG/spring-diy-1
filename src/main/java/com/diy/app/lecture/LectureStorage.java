@@ -1,4 +1,4 @@
-package com.diy.app;
+package com.diy.app.lecture;
 
 import java.util.ArrayList;
 import java.util.List;

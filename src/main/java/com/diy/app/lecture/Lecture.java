@@ -1,4 +1,4 @@
-package com.diy.app;
+package com.diy.app.lecture;
 
 public class Lecture {
     private Long id;
