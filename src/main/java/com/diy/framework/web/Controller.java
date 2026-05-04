@@ -8,3 +8,5 @@ import javax.servlet.http.HttpServletResponse;
 public interface Controller {
     ModelAndView handleRequest(final HttpServletRequest request, final HttpServletResponse response) throws Exception;
 }
+
+//커밋용 테스트 주석
